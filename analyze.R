@@ -12,7 +12,9 @@ library(zoo)
 # - Oil and Gas average annual pay: BLS QCEW series ENU48423505211
 # - Smith County employment: BLS QCEW series ENU4842310510
 # - Smith County total wages: BLS QCEW series ENU4842330510
-# - Smith County average annual pay: BLS QCEW series ENU4842350510 
+# - Smith County average annual pay: BLS QCEW series ENU4842350510
+# - Smith County unemployment rate: BLS LAU series LAUCN484230000000003
+# - Smith County employed population: BLS LAU series LAUCN484230000000005
 
 BASE_CPI_YEAR = 2016
 
