@@ -59,6 +59,22 @@ sales_tax <- read_csv("data/sales_tax.csv") %>%
   ) %>%
   select(quarter, gross_sales, subject_to_tax, establishments)
 
+# Load S&P500 data
+sp500 <- read_csv("data/sp500.csv") %>%
+  mutate(
+    quarter = as.yearqtr(as.Date(Date, "%Y-%m-%d"))
+  ) %>%
+  group_by(quarter) %>%
+  summarise(
+    sp500 = mean(Close)
+  ) %>%
+  left_join(cpi) %>%
+  # Adjust to 2016 dollars
+  mutate(
+    sp500 = sp500 * (base_cpi / cpi)
+  ) %>%
+  select(quarter, sp500)
+
 # Load QCEW data series
 labor_force <- read_excel("data/all_labor_force.xlsx", skip = 11) %>%
   mutate(
@@ -104,6 +120,7 @@ weekly_wages <- read_excel("data/all_weekly_wages.xlsx", skip = 11) %>%
 
 merged <- sales_tax %>%
   left_join(oil) %>% 
+  left_join(sp500) %>%
   left_join(labor_force) %>%
   left_join(unemployment_rate) %>%
   left_join(weekly_wages) %>%
@@ -114,8 +131,27 @@ merged <- sales_tax %>%
     labor_force = labor_force / 1000
   )
 
-model <- lm(subject_to_tax ~ labor_force + unemployment_rate + oil_price + weekly_wages, merged)
-summary(model)  
+model <- lm(
+  subject_to_tax ~
+    labor_force +
+    unemployment_rate +
+    oil_price +
+    weekly_wages +
+    sp500,
+  merged)
 
-ggplot(merged, aes(x = subject_to_tax, y = unemployment_rate)) +
+summary(model) 
+
+log_model <- lm(
+  log(subject_to_tax) ~
+    log(labor_force) + 
+    unemployment_rate + 
+    log(oil_price) + 
+    log(weekly_wages) + 
+    log(sp500),
+  merged)
+
+summary(log_model) 
+
+ggplot(merged, aes(x = subject_to_tax, y = weekly_wages)) +
   geom_point()
